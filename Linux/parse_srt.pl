@@ -2,7 +2,7 @@
 #
 #	parse_srt.pl
 #	XBMC Language Filter
-# 
+#
 #	Created by Brock Haymond 9/6/12.
 #	Copyright (c) 2012 Brock Haymond <http://brockhaymond.com>.  All rights reserved.
 #
@@ -15,6 +15,8 @@
 #
 
 use Time::Seconds;
+use Cwd 'chdir';
+use File::Basename;
 
 if($ARGV[$0] eq "") {
 	print "Usage: perl parse_srt.pl --offset=seconds --pad=seconds [subtitle.srt]\n";
@@ -23,6 +25,9 @@ if($ARGV[$0] eq "") {
 }
 
 my $verbose = 0;
+
+$cwd = $ENV{PWD};
+chdir dirname $0;
 
 if(!open PROFM, "pmatch.txt") {print "Couldn't open profanities match file: $!.\r\n"; exit 1;}
 @pmatch = <PROFM>;
@@ -34,6 +39,8 @@ if(!open PROFC, "pcontains.txt") {print "Couldn't open profanities contains file
 @pcontains = <PROFC>;
 chomp(@pcontains);
 close(PROFC);
+
+chdir $cwd;
 
 $offset = $ARGV[0];
 $offset =~ s/--offset=//;
@@ -69,7 +76,7 @@ foreach $block (@block) {
 
   my @words = split(' ', $block);
   $found |= exists $pmatchhash{lc($_)} foreach (@words);
-  
+
   if($found) {
 	  #print "$lines[1]\n$block\n\n";
 	  $lines[1] =~ s/,/\./g;
@@ -91,7 +98,7 @@ sub parsetime {
   my $seconds = $time;
   return sprintf "%02d:%02d:%02d", $hours, $minutes, $seconds;
 }
-	
+
 close(TXT);
 close(EDL);
 
